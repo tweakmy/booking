@@ -1,0 +1,526 @@
+openapi: 3.0.0
+x-stoplight:
+  id: 0gctwh9jjrgpu
+info:
+  title: ResourceBooking
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  '/users/{userId}':
+    parameters:
+      - schema:
+          type: integer
+        name: userId
+        in: path
+        required: true
+        description: Id of an existing user.
+    get:
+      summary: Get User Info by User ID
+      tags: []
+      responses:
+        '200':
+          description: User Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Get User Alice Smith:
+                  value:
+                    id: 142
+                    firstName: Alice
+                    lastName: Smith
+                    email: alice.smith@gmail.com
+                    dateOfBirth: '1997-10-31'
+                    emailVerified: true
+                    signUpDate: '2019-08-24'
+        '404':
+          description: User Not Found
+      operationId: get-users-userId
+      description: Retrieve the information of the user with the matching user ID.
+      parameters: []
+      security:
+        - Authorization: []
+    patch:
+      summary: Update User Information
+      operationId: patch-users-userId
+      responses:
+        '200':
+          description: User Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Updated User Rebecca Baker:
+                  value:
+                    id: 13
+                    firstName: Rebecca
+                    lastName: Baker
+                    email: rebecca@gmail.com
+                    dateOfBirth: '1985-10-02'
+                    emailVerified: false
+                    createDate: '2019-08-24'
+        '404':
+          description: User Not Found
+        '409':
+          description: Email Already Taken
+      description: Update the information of an existing user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  description: 'If a new email is given, the user''s email verified property will be set to false.'
+                dateOfBirth:
+                  type: string
+            examples:
+              Update First Name:
+                value:
+                  firstName: Rebecca
+              Update Email:
+                value:
+                  email: rebecca@gmail.com
+              Update Last Name & Date of Birth:
+                value:
+                  lastName: Baker
+                  dateOfBirth: '1985-10-02'
+        description: Patch user properties to update.
+      security:
+        - Authorization: []
+  /user:
+    post:
+      summary: Create New User
+      operationId: post-user
+      responses:
+        '200':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                New User Bob Fellow:
+                  value:
+                    id: 12
+                    firstName: Bob
+                    lastName: Fellow
+                    email: bob.fellow@gmail.com
+                    dateOfBirth: '1996-08-24'
+                    emailVerified: false
+                    createDate: '2020-11-18'
+        '400':
+          description: Missing Required Information
+        '409':
+          description: Email Already Taken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                dateOfBirth:
+                  type: string
+                  format: date
+              required:
+                - firstName
+                - lastName
+                - email
+                - dateOfBirth
+            examples:
+              Create User Bob Fellow:
+                value:
+                  firstName: Bob
+                  lastName: Fellow
+                  email: bob.fellow@gmail.com
+                  dateOfBirth: '1996-08-24'
+        description: Post the necessary fields for the API to create a new user.
+      description: Create a new user.
+      security:
+        - Authorization: []
+  /resources:
+    get:
+      summary: booking resource
+      tags:
+        - booking
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/resourceIdent'
+      operationId: get-resources
+      description: List all available resource name and type which can be booked
+      security:
+        - Authorization: []
+  '/booking/{resourcceid}':
+    parameters:
+      - schema:
+          type: string
+        name: resourcceid
+        in: path
+        required: true
+    get:
+      summary: booking information for the resource for 24 hours format
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceBooking'
+          headers: {}
+        default:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/errorMsg'
+      operationId: get-booking-resourceid
+      description: List 1 day(24h) booking information of a resource including avalaible and already booked
+      security:
+        - Authorization: []
+  '/admin/resouce/{resourceid}':
+    parameters:
+      - schema:
+          type: string
+        name: resourceid
+        in: path
+        required: true
+    delete:
+      summary: Delete resource id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceIdent'
+        default:
+          description: default
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/errorMsg'
+      operationId: delete-resouce-resourceid
+      description: Remove resource from the booking system
+      security:
+        - Authorization: []
+  /admin/resource/:
+    post:
+      summary: create-new-booking-resource
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceIdent'
+        default:
+          description: default
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/errorMsg'
+      operationId: post-admin-resource
+      description: Create new booking resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+              required:
+                - name
+                - type
+        description: Provide name the type
+      security:
+        - Authorization: []
+  /createbooking:
+    post:
+      summary: Create Booking
+      operationId: post-booking
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Create mirror response
+                items:
+                  $ref: '#/components/schemas/resourceBooking'
+        default:
+          description: default
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/errorMsg'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              description: Accept
+              items:
+                $ref: '#/components/schemas/resourceBooking'
+        description: User may be able to create bookings of multiple items
+      description: Create booking
+      security:
+        - Authorization: []
+    parameters: []
+  '/auth/{provider}/':
+    parameters:
+      - schema:
+          type: string
+        name: provider
+        in: path
+        required: true
+    post:
+      summary: retrieve jwt
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwttoken:
+                    type: string
+                    description: Jwt token from the server to perform futher api call
+                required:
+                  - jwttoken
+        default:
+          description: default
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/errorMsg'
+      operationId: post-auth-provider
+      description: Provide the code and state verification to server after oauth2 provider redirect in order to get JWT for further api call
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                state:
+                  type: string
+                  description: state from the redirect
+                code:
+                  type: string
+                  description: code return by oauth2 provider to generate the token id
+                stateMetadata:
+                  type: string
+                  description: 'encrypted state metadata to confirm legitimacy of the user before providing the jwt token '
+              required:
+                - state
+                - code
+                - stateMetadata
+        description: ''
+  /auth/random:
+    get:
+      summary: Get state
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                    description: random generate string for oauth2 state
+                  stateMetadata:
+                    type: string
+                    description: encrypted state metadata. This information is required to be persist on the local storage for later retrieval after user authenticate against oauth2 provider
+                required:
+                  - state
+                  - stateMetadata
+      operationId: get-auth-random
+      description: Perform state retrieval from the server prior to oauth2 authentication
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      description: ''
+      x-examples:
+        Alice Smith:
+          id: 142
+          firstName: Alice
+          lastName: Smith
+          email: alice.smith@gmail.com
+          dateOfBirth: '1997-10-31'
+          emailVerified: true
+          signUpDate: '2019-08-24'
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the given user.
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        dateOfBirth:
+          type: string
+          format: date
+          example: '1997-10-31'
+        emailVerified:
+          type: boolean
+          description: Set to true if the user's email has been verified.
+        createDate:
+          type: string
+          format: date
+          description: The date that the user was created.
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - emailVerified
+    resourceIdent:
+      title: resourceIdent
+      x-stoplight:
+        id: 75bquxhl2eqf6
+      x-tags:
+        - slot
+      type: object
+      description: Booking Resource Identity
+      x-examples:
+        example-1:
+          id: string
+          name: string
+          type: string
+      properties:
+        id:
+          type: string
+          description: 'Unique identitfier for this slot, will be use as a reference to resource booking'
+        name:
+          type: string
+          description: Name of resource
+        type:
+          type: string
+          description: 'Type of resource eg: a court, a vehicle, an equipment, a training session or consulting session'
+        desc:
+          type: string
+          description: Long Description for the resource
+          maxLength: 200
+      required:
+        - id
+        - name
+        - type
+    resourceBooking:
+      title: resourceBooking
+      x-stoplight:
+        id: jq7kqkyujsre5
+      x-tags:
+        - booking
+      type: object
+      description: Booking information on a daily basis starting Sunday. Each request will provide at maxiumum 7 days information of the booked resource
+      properties:
+        idref:
+          type: string
+          description: id reference to the resource
+        resourceSlots:
+          type: array
+          description: 'Contain a daily information, there should one per day'
+          items:
+            $ref: '#/components/schemas/resourceSlot'
+        dateOfBooking:
+          type: string
+          description: date of the booking
+          format: date
+      required:
+        - idref
+        - dateOfBooking
+    resourceSlot:
+      title: resourceSlot
+      x-stoplight:
+        id: r4pvzronhtgl7
+      x-tags:
+        - slot
+      type: object
+      description: a time slot which has a time interval span attached to the booking
+      properties:
+        id:
+          type: string
+          description: id of the slot
+        startDateTime:
+          type: string
+          format: date-time
+          description: Start date and time of the current slot
+        endDateTime:
+          type: string
+          format: date-time
+      required:
+        - id
+        - startDateTime
+        - endDateTime
+    errorMsg:
+      title: errorMsg
+      x-stoplight:
+        id: 8f4xio340467i
+      x-tags:
+        - error
+      type: object
+      properties:
+        code:
+          type: string
+          description: server error code
+        message:
+          type: string
+      required:
+        - code
+        - message
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+      description: use authorization bearer
