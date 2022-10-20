@@ -97,6 +97,8 @@ paths:
         description: Patch user properties to update.
       security:
         - Authorization: []
+      tags:
+        - user
   /user:
     post:
       summary: Create New User
