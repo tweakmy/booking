@@ -7,7 +7,7 @@ info:
 servers:
   - url: 'http://localhost:3000'
 paths:
-  '/users/{userId}':
+  '/user{userId}':
     parameters:
       - schema:
           type: integer
@@ -276,7 +276,7 @@ paths:
         description: Provide name the type
       security:
         - Authorization: []
-  /createbooking:
+  /booking:
     post:
       summary: Create Booking
       operationId: post-booking
