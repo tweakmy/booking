@@ -17,7 +17,8 @@ paths:
         description: Id of an existing user.
     get:
       summary: Get User Info by User ID
-      tags: []
+      tags:
+        - user
       responses:
         '200':
           description: User Found
@@ -152,7 +153,9 @@ paths:
       description: Create a new user.
       security:
         - Authorization: []
-  /resources:
+      tags:
+        - user
+  /booking/resources:
     get:
       summary: booking resource
       tags:
@@ -170,6 +173,7 @@ paths:
       description: List all available resource name and type which can be booked
       security:
         - Authorization: []
+    parameters: []
   '/booking/{resourcceid}':
     parameters:
       - schema:
@@ -179,7 +183,6 @@ paths:
         required: true
     get:
       summary: booking information for the resource for 24 hours format
-      tags: []
       responses:
         '200':
           description: OK
@@ -201,6 +204,8 @@ paths:
       description: List 1 day(24h) booking information of a resource including avalaible and already booked
       security:
         - Authorization: []
+      tags:
+        - booking
   '/admin/resouce/{resourceid}':
     parameters:
       - schema:
@@ -210,7 +215,8 @@ paths:
         required: true
     delete:
       summary: Delete resource id
-      tags: []
+      tags:
+        - booking
       responses:
         '200':
           description: OK
@@ -234,7 +240,8 @@ paths:
   /admin/resource/:
     post:
       summary: create-new-booking-resource
-      tags: []
+      tags:
+        - booking
       responses:
         '200':
           description: OK
@@ -304,6 +311,8 @@ paths:
       description: Create booking
       security:
         - Authorization: []
+      tags:
+        - booking
     parameters: []
   '/auth/{provider}/':
     parameters:
@@ -314,7 +323,8 @@ paths:
         required: true
     post:
       summary: retrieve jwt
-      tags: []
+      tags:
+        - auth
       responses:
         '200':
           description: OK
@@ -351,18 +361,18 @@ paths:
                 code:
                   type: string
                   description: code return by oauth2 provider to generate the token id
-                stateMetadata:
+                nonce:
                   type: string
                   description: 'encrypted state metadata to confirm legitimacy of the user before providing the jwt token '
               required:
                 - state
                 - code
-                - stateMetadata
+                - nonce
         description: ''
   /auth/random:
     get:
-      summary: Get state
-      tags: []
+      summary: ''
+      operationId: get-auth-random
       responses:
         '200':
           description: OK
@@ -373,15 +383,16 @@ paths:
                 properties:
                   state:
                     type: string
-                    description: random generate string for oauth2 state
-                  stateMetadata:
+                    description: state as required for oauth2
+                  nonce:
                     type: string
-                    description: encrypted state metadata. This information is required to be persist on the local storage for later retrieval after user authenticate against oauth2 provider
+                    description: Cryptographic nonc
                 required:
                   - state
-                  - stateMetadata
-      operationId: get-auth-random
+                  - nonce
       description: Perform state retrieval from the server prior to oauth2 authentication
+      tags:
+        - auth
 components:
   schemas:
     User:
@@ -524,3 +535,7 @@ components:
       type: http
       scheme: bearer
       description: use authorization bearer
+tags:
+  - name: auth
+  - name: booking
+  - name: user
