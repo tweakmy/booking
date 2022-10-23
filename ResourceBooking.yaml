@@ -395,6 +395,34 @@ paths:
       description: Perform state retrieval from the server prior to oauth2 authentication
       tags:
         - auth
+  '/auth/redirect/{provider}':
+    parameters:
+      - schema:
+          type: string
+        name: provider
+        in: path
+        required: true
+    post:
+      summary: redirect
+      tags:
+        - auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redirecturl:
+                    type: string
+                    description: redirect url
+                required:
+                  - redirecturl
+      operationId: post-auth-redirect-provider
+      description: get endpoint for redirect url
+      security:
+        - Authorization: []
 components:
   schemas:
     User:
