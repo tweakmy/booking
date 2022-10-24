@@ -250,7 +250,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/resourceIdent'
+                type: object
+                properties:
+                  '':
+                    $ref: '#/components/schemas/resourceIdent'
+                  createdate:
+                    type: string
+                    format: date-time
+                    description: date the resource was created
+                  modifiedate:
+                    type: string
+                    format: date-time
+                    description: last modified date
+                required:
+                  - createdate
+                  - modifiedate
         default:
           description: default
           content:
@@ -270,11 +284,24 @@ paths:
               properties:
                 name:
                   type: string
-                type:
+                  description: name of the resource for booking
+                shortname:
                   type: string
+                  description: shortname of the booking
+                resourcetype:
+                  type: string
+                  description: resource type
+                longdesc:
+                  type: string
+                  description: long description of the resource
+                imageurl:
+                  type: string
+                  description: url to the image
               required:
                 - name
-                - type
+                - shortname
+                - resourcetype
+                - longdesc
         description: Provide name the type
       security:
         - Authorization: []
@@ -464,6 +491,7 @@ components:
         shortname:
           type: string
           description: Name of resource
+          maxLength: 20
         resourcetype:
           type: string
           description: 'Type of resource eg: a court, a vehicle, an equipment, a training session or consulting session'
