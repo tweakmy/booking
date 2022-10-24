@@ -399,7 +399,7 @@ paths:
                 required:
                   - redirecturl
                   - nonce
-      operationId: post-auth-redirect
+      operationId: get-auth-redirect
       description: get endpoint for redirect url and nonce
 components:
   schemas:
