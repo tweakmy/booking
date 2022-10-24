@@ -316,7 +316,7 @@ paths:
       tags:
         - booking
     parameters: []
-  '/auth/{provider}/':
+  '/auth/callback/{provider}/':
     parameters:
       - schema:
           type: string
@@ -371,30 +371,6 @@ paths:
                 - code
                 - nonce
         description: ''
-  /auth/random:
-    get:
-      summary: ''
-      operationId: get-auth-random
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  state:
-                    type: string
-                    description: state as required for oauth2
-                  nonce:
-                    type: string
-                    description: Cryptographic nonc
-                required:
-                  - state
-                  - nonce
-      description: Perform state retrieval from the server prior to oauth2 authentication
-      tags:
-        - auth
   '/auth/redirect/{provider}':
     parameters:
       - schema:
@@ -402,7 +378,7 @@ paths:
         name: provider
         in: path
         required: true
-    post:
+    get:
       summary: redirect
       tags:
         - auth
@@ -417,12 +393,14 @@ paths:
                   redirecturl:
                     type: string
                     description: redirect url
+                  nonce:
+                    type: string
+                    description: nonce should persisted in the client storage before redirecting. Nonce will be check during the callback.
                 required:
                   - redirecturl
+                  - nonce
       operationId: post-auth-redirect-provider
-      description: get endpoint for redirect url
-      security:
-        - Authorization: []
+      description: get endpoint for redirect url and nonce
 components:
   schemas:
     User:
