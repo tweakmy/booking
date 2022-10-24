@@ -461,20 +461,25 @@ components:
         id:
           type: string
           description: 'Unique identitfier for this slot, will be use as a reference to resource booking'
-        name:
+        shortname:
           type: string
           description: Name of resource
-        type:
+        resourcetype:
           type: string
           description: 'Type of resource eg: a court, a vehicle, an equipment, a training session or consulting session'
-        desc:
+        longdesc:
           type: string
           description: Long Description for the resource
           maxLength: 200
+        imageurl:
+          type: string
+          format: uri
+          description: image url of the images
       required:
         - id
-        - name
-        - type
+        - shortname
+        - resourcetype
+        - longdesc
     resourceBooking:
       title: resourceBooking
       x-stoplight:
