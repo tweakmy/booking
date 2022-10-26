@@ -564,7 +564,7 @@ components:
       type: object
       properties:
         code:
-          type: string
+          type: integer
           description: server error code
         message:
           type: string
