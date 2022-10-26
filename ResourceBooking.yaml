@@ -176,11 +176,11 @@ paths:
       security:
         - Authorization: []
     parameters: []
-  '/booking/{resourcceid}':
+  '/booking/{resourccename}':
     parameters:
       - schema:
           type: string
-        name: resourcceid
+        name: resourccename
         in: path
         required: true
     get:
@@ -203,11 +203,23 @@ paths:
                   error:
                     $ref: '#/components/schemas/errorMsg'
       operationId: get-booking-resourceid
-      description: List 1 day(24h) booking information of a resource including avalaible and already booked
+      description: List weekly booking information of a resource including avalaible and already booked
       security:
         - Authorization: []
       tags:
         - booking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: if no date is provided it should default to current/today's date
+                  format: date
+              required:
+                - date
   '/admin/resouce/{resourceid}':
     parameters:
       - schema:
