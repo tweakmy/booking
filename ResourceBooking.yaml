@@ -446,7 +446,10 @@ paths:
                     type: string
                     description: name of the resource
                   bookingSlots:
-                    $ref: '#/components/schemas/resourseSlotDetail'
+                    description: listing of all active booking and checkout session
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/resourseSlotDetail'
                 required:
                   - shortname
                   - bookingSlots
