@@ -242,7 +242,7 @@ paths:
         - Authorization: []
       tags:
         - user
-  '/admin/resouce/{resourcename}':
+  '/admin/resource/{resourcename}':
     parameters:
       - schema:
           type: string
@@ -360,7 +360,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: ''
+                  $ref: '#/components/schemas/resourceSlotAdmin'
       operationId: get-admin-booking-resourcename
       description: 'endpoint to allow admin to view all the activity of all avalailble '
       requestBody:
@@ -449,7 +449,9 @@ paths:
                     type: array
                     description: listing of all active booking and checkout session
                     items:
-                      $ref: '#/components/schemas/resourseSlotDetail'
+                      anyOf:
+                        - $ref: '#/components/schemas/resourceSlotSimple'
+                        - $ref: '#/components/schemas/resourseSlotDetail'
                 required:
                   - shortname
                   - bookingSlots
@@ -693,6 +695,32 @@ components:
         - status
         - startdatetime
         - enddatetime
+    resourceSlotAdmin:
+      title: resourceSlotAdmin
+      x-stoplight:
+        id: 1wa5n0r36tzjb
+      x-tags:
+        - booking
+      type: object
+      description: slot information made available for adminstrator to view and manage
+      properties:
+        slotdetail:
+          $ref: '#/components/schemas/resourseSlotDetail'
+        checkouttime:
+          type: string
+          format: date-time
+          description: checkout time of the user
+        leaseid:
+          type: integer
+          description: leasing session id associate with database
+        paymentsessionid:
+          type: string
+          description: retrieval of paymentsessionid associate with the booking
+      required:
+        - slotdetail
+        - checkouttime
+        - leaseid
+        - paymentsessionid
     errorMsg:
       title: errorMsg
       x-stoplight:
@@ -709,16 +737,6 @@ components:
       required:
         - code
         - message
-    resourceSlotAdmin:
-      title: resourceSlotAdmin
-      x-stoplight:
-        id: 1wa5n0r36tzjb
-      x-tags:
-        - booking
-      type: object
-      properties:
-        id:
-          type: string
   securitySchemes:
     Authorization:
       type: http
