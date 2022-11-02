@@ -446,12 +446,7 @@ paths:
                     type: string
                     description: name of the resource
                   bookingSlots:
-                    type: array
-                    description: listing of all active booking and checkout session
-                    items:
-                      anyOf:
-                        - $ref: '#/components/schemas/resourceSlotSimple'
-                        - $ref: '#/components/schemas/resourseSlotDetail'
+                    $ref: '#/components/schemas/resourseSlotDetail'
                 required:
                   - shortname
                   - bookingSlots
@@ -608,12 +603,7 @@ components:
           type: string
           description: id reference to the resource
         resourceSlots:
-          type: array
-          description: 'Contain a daily information, there should one per day'
-          items:
-            anyOf:
-              - $ref: '#/components/schemas/resourseSlotDetail'
-              - $ref: '#/components/schemas/resourceSlotSimple'
+          $ref: '#/components/schemas/resourseSlotDetail'
         dateOfBooking:
           type: string
           description: date of the booking
@@ -622,39 +612,6 @@ components:
         - idref
         - resourceSlots
         - dateOfBooking
-    resourceSlotSimple:
-      title: resourceSlotSimple
-      x-stoplight:
-        id: r4pvzronhtgl7
-      x-tags:
-        - slot
-      type: object
-      description: view of the slot detail where the user is not the owner of the resource
-      properties:
-        id:
-          type: string
-          description: id of the slot
-        startDateTime:
-          type: string
-          format: date-time
-          description: Start date and time of the current slot
-        endDateTime:
-          type: string
-          format: date-time
-          description: endtime of the resource which can be booked
-        status:
-          type: string
-          description: status of the booking
-        attime:
-          type: string
-          format: date-time
-          description: indicate when this booking was created
-      required:
-        - id
-        - startDateTime
-        - endDateTime
-        - status
-        - attime
     resourseSlotDetail:
       title: resourseSlotDetail
       x-stoplight:
