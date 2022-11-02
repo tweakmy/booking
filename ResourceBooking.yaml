@@ -7,6 +7,91 @@ info:
 servers:
   - url: 'http://localhost:3000'
 paths:
+  '/auth/callback/{provider}/':
+    parameters:
+      - schema:
+          type: string
+        name: provider
+        in: path
+        required: true
+    post:
+      summary: retrieve jwt
+      tags:
+        - auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwttoken:
+                    type: string
+                    description: Jwt token from the server to perform futher api call
+                required:
+                  - jwttoken
+        default:
+          description: default
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    $ref: '#/components/schemas/errorMsg'
+      operationId: post-auth-callback
+      description: Provide the code and state verification to server after oauth2 provider redirect in order to get JWT for further api call
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                state:
+                  type: string
+                  description: state from the redirect
+                code:
+                  type: string
+                  description: code return by oauth2 provider to generate the token id
+                nonce:
+                  type: string
+                  description: 'encrypted state metadata to confirm legitimacy of the user before providing the jwt token '
+              required:
+                - state
+                - code
+                - nonce
+        description: ''
+  '/auth/redirect/{provider}':
+    parameters:
+      - schema:
+          type: string
+        name: provider
+        in: path
+        required: true
+    get:
+      summary: redirect
+      tags:
+        - auth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redirecturl:
+                    type: string
+                    description: redirect url
+                  nonce:
+                    type: string
+                    description: nonce should persisted in the client storage before redirecting. Nonce will be check during the callback.
+                required:
+                  - redirecturl
+                  - nonce
+      operationId: get-auth-redirect
+      description: get endpoint for redirect url and nonce
   '/user{userId}':
     parameters:
       - schema:
@@ -157,74 +242,11 @@ paths:
         - Authorization: []
       tags:
         - user
-  /booking/resources:
-    get:
-      summary: booking resource
-      tags:
-        - booking
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/resourceIdent'
-      operationId: get-resources
-      description: List all available resource name and type which can be booked
-      security:
-        - Authorization: []
-    parameters: []
-  '/booking/{resourccename}':
+  '/admin/resouce/{resourcename}':
     parameters:
       - schema:
           type: string
-        name: resourccename
-        in: path
-        required: true
-    get:
-      summary: booking information for the resource for 24 hours format
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/resourceBooking'
-          headers: {}
-        default:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    $ref: '#/components/schemas/errorMsg'
-      operationId: get-booking-info
-      description: List weekly booking information of a resource including avalaible and already booked
-      security:
-        - Authorization: []
-      tags:
-        - booking
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                date:
-                  type: string
-                  description: if no date is provided it should default to current/today's date
-                  format: date
-              required:
-                - date
-  '/admin/resouce/{resourceid}':
-    parameters:
-      - schema:
-          type: string
-        name: resourceid
+        name: resourcename
         in: path
         required: true
     delete:
@@ -251,7 +273,7 @@ paths:
       description: Remove resource from the booking system
       security:
         - Authorization: []
-  /admin/resource/:
+  /admin/resource:
     post:
       summary: create-new-booking-resource
       tags:
@@ -264,7 +286,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  '':
+                  resourceIdent:
                     $ref: '#/components/schemas/resourceIdent'
                   createdate:
                     type: string
@@ -275,6 +297,7 @@ paths:
                     format: date-time
                     description: last modified date
                 required:
+                  - resourceIdent
                   - createdate
                   - modifiedate
         default:
@@ -317,10 +340,18 @@ paths:
         description: Provide name the type
       security:
         - Authorization: []
-  /booking:
-    post:
-      summary: Create Booking
-      operationId: post-booking
+    parameters: []
+  '/admin/booking/{resourcename}':
+    parameters:
+      - schema:
+          type: string
+        name: resourcename
+        in: path
+        required: true
+    get:
+      summary: get booking info
+      tags:
+        - booking
       responses:
         '200':
           description: OK
@@ -328,9 +359,29 @@ paths:
             application/json:
               schema:
                 type: array
-                description: Create mirror response
                 items:
-                  $ref: '#/components/schemas/resourceBooking'
+                  $ref: ''
+      operationId: get-admin-booking-resourcename
+      description: 'endpoint to allow admin to view all the activity of all avalailble '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: date will default to current if zero is provided
+              required:
+                - date
+        description: ''
+      security:
+        - Authorization: []
+  /booking:
+    post:
+      summary: Create Booking
+      operationId: post-booking
+      responses:
         default:
           description: default
           content:
@@ -355,17 +406,34 @@ paths:
       tags:
         - booking
     parameters: []
-  '/auth/callback/{provider}/':
+  /booking/resources:
+    get:
+      summary: booking resource
+      tags:
+        - booking
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/resourceIdent'
+      operationId: get-resources
+      description: List all available resource name and type which can be booked
+      security:
+        - Authorization: []
+    parameters: []
+  '/booking/{resourccename}':
     parameters:
       - schema:
           type: string
-        name: provider
+        name: resourccename
         in: path
         required: true
-    post:
-      summary: retrieve jwt
-      tags:
-        - auth
+    get:
+      summary: booking information for the resource for 24 hours format
       responses:
         '200':
           description: OK
@@ -374,13 +442,20 @@ paths:
               schema:
                 type: object
                 properties:
-                  jwttoken:
+                  shortname:
                     type: string
-                    description: Jwt token from the server to perform futher api call
+                    description: name of the resource
+                  bookingSlots:
+                    type: array
+                    description: listing of all active booking and checkout session
+                    items:
+                      $ref: '#/components/schemas/resourseSlotDetail'
                 required:
-                  - jwttoken
+                  - shortname
+                  - bookingSlots
+          headers: {}
         default:
-          description: default
+          description: Not Found
           content:
             application/json:
               schema:
@@ -388,39 +463,29 @@ paths:
                 properties:
                   error:
                     $ref: '#/components/schemas/errorMsg'
-      operationId: post-auth-callback
-      description: Provide the code and state verification to server after oauth2 provider redirect in order to get JWT for further api call
+      operationId: get-booking-info
+      description: List 24hr booking information of a resource
+      security:
+        - Authorization: []
+      tags:
+        - booking
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                state:
+                date:
                   type: string
-                  description: state from the redirect
-                code:
-                  type: string
-                  description: code return by oauth2 provider to generate the token id
-                nonce:
-                  type: string
-                  description: 'encrypted state metadata to confirm legitimacy of the user before providing the jwt token '
+                  description: if no date is provided it should default to current/today's date
+                  format: date
               required:
-                - state
-                - code
-                - nonce
-        description: ''
-  '/auth/redirect/{provider}':
-    parameters:
-      - schema:
-          type: string
-        name: provider
-        in: path
-        required: true
-    get:
-      summary: redirect
+                - date
+  /booking/checkout:
+    post:
+      summary: Checkout All Orders
       tags:
-        - auth
+        - booking
       responses:
         '200':
           description: OK
@@ -429,17 +494,25 @@ paths:
               schema:
                 type: object
                 properties:
-                  redirecturl:
+                  urltocheckout:
                     type: string
-                    description: redirect url
-                  nonce:
-                    type: string
-                    description: nonce should persisted in the client storage before redirecting. Nonce will be check during the callback.
+                    description: url to be redirected for checkout
                 required:
-                  - redirecturl
-                  - nonce
-      operationId: get-auth-redirect
-      description: get endpoint for redirect url and nonce
+                  - urltocheckout
+      operationId: post-booking-checkout
+      description: Retrieve the checkout session and prepare to be redirect
+      security:
+        - Authorization: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              description: user may multi select
+              items:
+                $ref: '#/components/schemas/resourseSlotDetail'
+        description: slots requested for the checkout
 components:
   schemas:
     User:
@@ -536,22 +609,25 @@ components:
           type: array
           description: 'Contain a daily information, there should one per day'
           items:
-            $ref: '#/components/schemas/resourceSlot'
+            anyOf:
+              - $ref: '#/components/schemas/resourseSlotDetail'
+              - $ref: '#/components/schemas/resourceSlotSimple'
         dateOfBooking:
           type: string
           description: date of the booking
           format: date
       required:
         - idref
+        - resourceSlots
         - dateOfBooking
-    resourceSlot:
-      title: resourceSlot
+    resourceSlotSimple:
+      title: resourceSlotSimple
       x-stoplight:
         id: r4pvzronhtgl7
       x-tags:
         - slot
       type: object
-      description: a time slot which has a time interval span attached to the booking
+      description: view of the slot detail where the user is not the owner of the resource
       properties:
         id:
           type: string
@@ -563,10 +639,60 @@ components:
         endDateTime:
           type: string
           format: date-time
+          description: endtime of the resource which can be booked
+        status:
+          type: string
+          description: status of the booking
+        attime:
+          type: string
+          format: date-time
+          description: indicate when this booking was created
       required:
         - id
         - startDateTime
         - endDateTime
+        - status
+        - attime
+    resourseSlotDetail:
+      title: resourseSlotDetail
+      x-stoplight:
+        id: 7p9aek2uenlvl
+      type: object
+      description: |-
+        a time slot which has a time interval span attached to the resource
+        detail view of booking attached to the slot
+      properties:
+        id:
+          type: string
+          description: id of the slot
+        useremail:
+          type: string
+          format: email
+          description: useremail attached to this booking
+        attime:
+          type: string
+          format: date-time
+          description: |-
+            Time when system register and accepts the booking made by the user
+            This is usually after the user have performed the payment
+        status:
+          type: string
+          description: status of the booking
+        startdatetime:
+          type: string
+          format: date-time
+          description: Start date and time of the current slot
+        enddatetime:
+          type: string
+          format: date-time
+          description: endtime of the resource which can be booked
+      required:
+        - id
+        - useremail
+        - attime
+        - status
+        - startdatetime
+        - enddatetime
     errorMsg:
       title: errorMsg
       x-stoplight:
@@ -583,6 +709,16 @@ components:
       required:
         - code
         - message
+    resourceSlotAdmin:
+      title: resourceSlotAdmin
+      x-stoplight:
+        id: 1wa5n0r36tzjb
+      x-tags:
+        - booking
+      type: object
+      properties:
+        id:
+          type: string
   securitySchemes:
     Authorization:
       type: http
