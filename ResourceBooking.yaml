@@ -425,11 +425,16 @@ paths:
       security:
         - Authorization: []
     parameters: []
-  '/booking/{resourccename}':
+  '/booking/{resourccename}/{date}':
     parameters:
       - schema:
           type: string
         name: resourccename
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: date
         in: path
         required: true
     get:
@@ -442,16 +447,21 @@ paths:
               schema:
                 type: object
                 properties:
-                  shortname:
+                  resourceShortname:
                     type: string
                     description: name of the resource
+                  date:
+                    type: string
+                    format: date
+                    description: date of resource booked
                   bookingSlots:
                     description: listing of all active booking and checkout session
                     type: array
                     items:
                       $ref: '#/components/schemas/resourseSlotDetail'
                 required:
-                  - shortname
+                  - resourceShortname
+                  - date
                   - bookingSlots
           headers: {}
         default:
@@ -469,18 +479,7 @@ paths:
         - Authorization: []
       tags:
         - booking
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                date:
-                  type: string
-                  description: if no date is provided it should default to current/today's date
-                  format: date
-              required:
-                - date
+      parameters: []
   /booking/checkout:
     post:
       summary: Checkout All Orders
@@ -640,21 +639,21 @@ components:
         status:
           type: string
           description: status of the booking
-        startdatetime:
+        starttime:
           type: string
-          format: date-time
-          description: Start date and time of the current slot
-        enddatetime:
+          description: Start time of the current slot
+          format: time
+        endtime:
           type: string
-          format: date-time
-          description: endtime of the resource which can be booked
+          format: time
+          description: endtime of the slot
       required:
         - id
         - useremail
         - attime
         - status
-        - startdatetime
-        - enddatetime
+        - starttime
+        - endtime
     resourceSlotAdmin:
       title: resourceSlotAdmin
       x-stoplight:
