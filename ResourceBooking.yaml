@@ -382,6 +382,21 @@ paths:
       summary: Create Booking
       operationId: post-booking
       responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  respresourceslot:
+                    $ref: '#/components/schemas/resourseSlotDetail'
+                  leaseid:
+                    type: integer
+                    description: server return lease id
+                  resourceshortname:
+                    type: string
+                    description: return resource short name
         default:
           description: default
           content:
@@ -395,12 +410,19 @@ paths:
         content:
           application/json:
             schema:
-              type: array
               description: Accept
-              items:
-                $ref: '#/components/schemas/resourceBooking'
+              type: object
+              properties:
+                reqresourceslot:
+                  $ref: '#/components/schemas/resourseSlotDetail'
+                leaseid:
+                  type: integer
+                  description: lease id if it is already available
+                resourceshortname:
+                  type: string
+                  description: resource reference name
         description: User may be able to create bookings of multiple items
-      description: Create booking
+      description: Create booking for a single slot. Create multiple booking by requesting multiple
       security:
         - Authorization: []
       tags:
@@ -623,9 +645,6 @@ components:
         a time slot which has a time interval span attached to the resource
         detail view of booking attached to the slot
       properties:
-        id:
-          type: string
-          description: id of the slot
         useremail:
           type: string
           format: email
@@ -648,7 +667,6 @@ components:
           format: time
           description: endtime of the slot
       required:
-        - id
         - useremail
         - attime
         - status
